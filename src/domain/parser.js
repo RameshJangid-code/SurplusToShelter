@@ -1,0 +1,4 @@
+const food = [
+  [/\b(non[- ]?veg|chicken|mutton|egg|मांस|चिकन|अंडा)\b/i,'cooked_nonveg'],[/\b(bakery|cake|bread|बेकरी|केक|ब्रेड)\b/i,'bakery'],[/\b(packed|packaged|sealed|पैक|डिब्बा)\b/i,'packed'],[/\b(veg|vegetarian|dal|paneer|चावल|दाल|पनीर|शाकाहारी)\b/i,'cooked_veg']
+];
+export function parseDonation(text) { const qty = text.match(/(?:^|\D)(\d+)\s*(?:plates?|plate|प्लेट|थाली)/i); const age = text.match(/(\d+)\s*(hours?|hrs?|ghante|घंटे|minutes?|mins?|मिनट)/i); let age_minutes = age ? Number(age[1]) * (/hour|hr|ghant|घंट/i.test(age[2]) ? 60 : 1) : 0; const food_type = food.find(([re]) => re.test(text))?.[1] || 'cooked_veg'; const item_text = text.replace(/\d+\s*(?:plates?|plate|प्लेट|थाली)/i,'').replace(/\d+\s*(?:hours?|hrs?|ghante|घंटे|minutes?|mins?|मिनट)/i,'').replace(/\b(ago|pehle|पहले)\b/i,'').trim().replace(/^[,\s]+|[,\s]+$/g,''); return { qty_plates: qty ? Number(qty[1]) : undefined, food_type, age_minutes, item_text: item_text || text.trim() }; }

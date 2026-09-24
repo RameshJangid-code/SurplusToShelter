@@ -1,0 +1,7 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+import { remaining } from '../src/domain/foodClock.js'; import { rankCandidates } from '../src/domain/matching.js'; import { canTransition, transition } from '../src/domain/stateMachine.js'; import { parseDonation } from '../src/domain/parser.js'; import { hungarian } from '../src/domain/hungarian.js';
+test('hot weather shortens cooked clock; printed expiry wins',()=>{const d={food_type:'cooked_veg',cooked_at:'2026-01-01T00:00:00Z'};assert.ok(remaining(d,'2026-01-01T00:00:00Z','hot')<remaining(d,'2026-01-01T00:00:00Z','cool'));assert.equal(remaining({...d,printed_expiry:'2026-01-01T01:00:00Z'},'2026-01-01T00:00:00Z','hot'),20);});
+test('expired donations are never matched',()=>{const d={food_type:'packed',cooked_at:'2020-01-01T00:00:00Z',pickup_lat:0,pickup_lng:0,qty_plates:1};assert.deepEqual(rankCandidates(d,[{id:1,lat:0,lng:0,verified:true,remaining_capacity:10}],[],new Date('2026-01-01'),'warm'),[]);});
+test('state transitions reject invalid edges',()=>{assert.equal(transition('open','matched'),'matched');assert.equal(canTransition('delivered','expired'),false);assert.throws(()=>transition('open','delivered'));});
+test('parser extracts Hindi plates and age',()=>{assert.deepEqual(parseDonation('30 प्लेट पनीर, 45 min'),{qty_plates:30,food_type:'cooked_veg',age_minutes:45,item_text:'पनीर'});});
+test('Hungarian assignment maximizes total score',()=>{const a=hungarian([[.9,.8],[.85,.1]]);assert.equal(a.reduce((s,x)=>s+x.score,0),1.65);});
